@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base target="_self">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlaySTEM Interactive Game Project | Engineering Design Portfolio</title>
+    <meta name="description" content="A comprehensive portfolio showcasing the design and development of an interactive STEM game for 5th graders at Melrose Leadership Academy using Raspberry Pi Pico, following the complete engineering design process.">
+    <meta name="keywords" content="Raspberry Pi Pico, Engineering Design, Interactive STEM Game, Educational Technology, PlaySTEM, Melrose Leadership Academy, Inclusivity, Universal Design">
+    
+    <!-- Advanced Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Particle.js Library -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#3b82f6',
+                            dark: '#60a5fa'
+                        },
+                        secondary: {
+                            DEFAULT: '#1e40af',
+                            dark: '#93c5fd'
+                        },
+                        accent: {
+                            DEFAULT: '#f59e0b',
+                            dark: '#fbbf24'
+                        },
+                        tech: {
+                            blue: '#3b82f6',
+                            green: '#10b981',
+                            purple: '#8b5cf6',
+                            orange: '#f59e0b',
+                            red: '#ef4444',
+                            cyan: '#06b6d4',
+                            pink: '#ec4899',
+                            teal: '#14b8a6',
+                            indigo: '#6366f1'
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'shimmer': 'shimmer 2s infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'slide-in': 'slideIn 0.5s ease-out',
+                        'wave': 'wave 1.5s ease-in-out infinite',
+                        'gradient': 'gradient 3s ease infinite',
+                        'neon': 'neon 1.5s ease-in-out infinite alternate',
+                        'spin-slow': 'spin 8s linear infinite',
+                        'typing': 'typing 3.5s steps(40, end)',
+                        'blink': 'blink 1s infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        glow: {
+                            '0%': { 
+                                boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)',
+                                textShadow: '0 0 10px rgba(59, 130, 246, 0.5)'
+                            },
+                            '100%': { 
+                                boxShadow: '0 0 30px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.5)',
+                                textShadow: '0 0 20px rgba(59, 130, 246, 0.8)'
+                            }
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(30px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        wave: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(20deg)' },
+                            '75%': { transform: 'rotate(-15deg)' }
+                        },
+                        gradient: {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' }
+                        },
+                        neon: {
+                            '0%': { 
+                                filter: 'drop-shadow(0 0 5px currentColor)',
+                                opacity: '0.8'
+                            },
+                            '100%': { 
+                                filter: 'drop-shadow(0 0 20px currentColor)',
+                                opacity: '1'
+                            }
+                        },
+                        typing: {
+                            'from': { width: '0' },
+                            'to': { width: '100%' }
+                        },
+                        blink: {
+                            '50%': { borderColor: 'transparent' }
+                        }
+                    },
+                    backgroundImage: {
+                        'circuit-board': "url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%233b82f6' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E\")",
+                        'grid-dots': "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%233b82f6' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3C/g%3E%3C/svg%3E\")",
+                        'gradient-radial': 'radial-gradient(circle at center, var(--tw-gradient-stops))',
+                        'gradient-tech': 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 25%, #f59e0b 50%, #10b981 75%, #06b6d4 100%)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #b967ff;
+            --neon-green: #00ff9d;
+            --neon-pink: #ff00ff;
+            --neon-orange: #ff9900;
+        }
+        
+        * {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+            z-index: -2;
+        }
+        
+        /* Hero Section with Particle Background */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Futuristic Card Design */
+        .tech-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .tech-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s;
+        }
+        
+        .tech-card:hover::before {
+            left: 100%;
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 
+                0 25px 50px -12px rgba(59, 130, 246, 0.25),
+                0 0 50px rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        .dark .tech-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Glowing Border Effect */
+        .glow-border {
+            position: relative;
+            border-radius: 24px;
+        }
+        
+        .glow-border::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #f59e0b, #10b981, #3b82f6);
+            border-radius: 26px;
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .glow-border:hover::after {
+            opacity: 0.7;
+        }
+        
+        /* Animated Gradient Background */
+        .gradient-bg {
+            background: linear-gradient(-45deg, #3b82f6, #8b5cf6, #f59e0b, #10b981);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Shimmer Button */
+        .shimmer-btn {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                transparent 25%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 75%, 
+                transparent 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+        }
+        
+        /* Floating Elements */
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .animation-delay-200 { animation-delay: 200ms; }
+        .animation-delay-400 { animation-delay: 400ms; }
+        .animation-delay-600 { animation-delay: 600ms; }
+        
+        /* Binary Code Animation */
+        .binary-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .binary-digit {
+            position: absolute;
+            color: rgba(59, 130, 246, 0.1);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            animation: binary-fall linear infinite;
+        }
+        
+        @keyframes binary-fall {
+            to { transform: translateY(100vh); }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.1);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #2563eb, #7c3aed);
+        }
+        
+        /* Holographic Effect */
+        .holographic {
+            background: linear-gradient(45deg, 
+                rgba(59, 130, 246, 0.1) 0%, 
+                rgba(139, 92, 246, 0.1) 25%, 
+                rgba(245, 158, 11, 0.1) 50%, 
+                rgba(16, 185, 129, 0.1) 75%, 
+                rgba(59, 130, 246, 0.1) 100%);
+            background-size: 400% 400%;
+            animation: gradient 10s ease infinite;
+        }
+        
+        /* Subtle Gradient Text */
+        .gradient-text {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .dark .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* Responsive Design Improvements */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem !important;
+            }
+            
+            .tech-card {
+                margin: 0 auto;
+                max-width: 90%;
+            }
+        }
+        
+        /* Timeline styling */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3b82f6;
+        }
+        
+        .dark .timeline-item::before {
+            background: #60a5fa;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .dark .card-hover:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Universal Design Principles Styling */
+        .udp-item {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .udp-item:hover {
+            border-left-color: #10b981;
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body class="font-sans bg-gradient-to-br from-gray-50 via-white to-blue-50 text-gray-800 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-gray-100">
+    
+    <!-- Binary Code Background Animation -->
+    <div class="binary-container" id="binaryContainer"></div>
+    
+    <!-- Theme Toggle with Enhanced Design -->
+    <button id="themeToggle" class="fixed top-6 right-6 z-50 w-14 h-7 rounded-full bg-gradient-to-br from-tech-blue to-tech-purple shadow-2xl flex items-center justify-center">
+        <i class="fas fa-sun text-white text-xl dark:hidden"></i>
+        <i class="fas fa-moon text-white text-xl hidden dark:block"></i>
+        <div class="absolute inset-0 rounded-full bg-gradient-to-br from-tech-blue to-tech-purple opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300"></div>
+    </button>
+    
+    <!-- Navigation with Holographic Effect -->
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl border-b border-gray-200/50 dark:border-gray-700/50">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-tech-blue via-tech-purple to-tech-orange rounded-xl flex items-center justify-center shadow-lg glow-border">
+                        <i class="fas fa-graduation-cap text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <a href="http://127.0.0.1:3000/Portfolio-main.html?serverWindowId=5394fac9-20e1-4455-b589-ce7e7e236110" class="text-2xl font-black text-gray-800 dark:text-white hover:text-tech-blue dark:hover:text-tech-blue transition-colors">
+                            PlaySTEM
+                        </a>
+                        <a href="http://127.0.0.1:3000/Portfolio-main.html?serverWindowId=5394fac9-20e1-4455-b589-ce7e7e236110" class="text-2xl font-black gradient-text">
+                            Initiative
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-10">
+                    <a href="#home" class="nav-link text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-all duration-300 font-semibold relative group" data-target="home">
+                        <span class="relative z-10">Home</span>
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-tech-blue to-tech-purple group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="#context" class="nav-link text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-all duration-300 font-semibold relative group" data-target="context">
+                        <span class="relative z-10">Project Context</span>
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-tech-blue to-tech-purple group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="#goals" class="nav-link text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-all duration-300 font-semibold relative group" data-target="goals">
+                        <span class="relative z-10">Educational Goals</span>
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-tech-blue to-tech-purple group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="#design" class="nav-link text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-all duration-300 font-semibold relative group" data-target="design">
+                        <span class="relative z-10">Design Objectives</span>
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-tech-blue to-tech-purple group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                    <a href="#team" class="nav-link text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-all duration-300 font-semibold relative group" data-target="team">
+                        <span class="relative z-10">Our Team</span>
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-tech-blue to-tech-purple group-hover:w-full transition-all duration-300"></span>
+                    </a>
+                </div>
+                <button class="md:hidden text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-colors text-2xl" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <!-- Enhanced Mobile Menu -->
+            <div id="mobileMenu" class="hidden md:hidden mt-6 p-6 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+                <div class="space-y-6">
+                    <a href="#home" class="mobile-nav-link block text-tech-blue dark:text-tech-blue font-bold text-lg py-3 px-4 rounded-xl bg-gradient-to-r from-tech-blue/10 to-transparent dark:from-tech-blue/20" data-target="home">
+                        <i class="fas fa-home mr-3"></i>Home
+                    </a>
+                    <a href="#context" class="mobile-nav-link block text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-colors font-semibold text-lg py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-tech-blue/10 hover:to-transparent" data-target="context">
+                        <i class="fas fa-info-circle mr-3"></i>Project Context
+                    </a>
+                    <a href="#goals" class="mobile-nav-link block text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-colors font-semibold text-lg py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-tech-blue/10 hover:to-transparent" data-target="goals">
+                        <i class="fas fa-bullseye mr-3"></i>Educational Goals
+                    </a>
+                    <a href="#design" class="mobile-nav-link block text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-colors font-semibold text-lg py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-tech-blue/10 hover:to-transparent" data-target="design">
+                        <i class="fas fa-cogs mr-3"></i>Design Objectives
+                    </a>
+                    <a href="#team" class="mobile-nav-link block text-gray-600 dark:text-gray-300 hover:text-tech-blue dark:hover:text-tech-blue transition-colors font-semibold text-lg py-3 px-4 rounded-xl hover:bg-gradient-to-r hover:from-tech-blue/10 hover:to-transparent" data-target="team">
+                        <i class="fas fa-users mr-3"></i>Our Team
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section with Particle Background -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div id="particles-js" class="absolute inset-0"></div>
+        
+        <div class="hero-content container mx-auto px-6 py-20 text-center relative z-10">
+            <!-- Animated Title -->
+            <div class="mb-8">
+                <div class="inline-block">
+                    <h1 class="hero-title text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight">
+                        <span class="block text-gray-800 dark:text-white">
+                            PlaySTEM
+                        </span>
+                        <span class="block gradient-text">
+                            Initiative
+                        </span>
+                    </h1>
+                </div>
+            </div>
+            
+            <!-- Animated Subtitle -->
+            <p class="text-xl md:text-2xl mb-12 text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-light leading-relaxed">
+                Engineering Inclusive STEM Games for 5th Graders at Melrose Leadership Academy
+            </p>
+            
+            <!-- Partnership Badge -->
+            <div class="mb-12">
+                <div class="inline-flex items-center px-6 py-4 rounded-2xl bg-gradient-to-r from-tech-teal/20 to-tech-indigo/20 border border-tech-teal/30">
+                    <i class="fas fa-handshake text-tech-teal text-2xl mr-3"></i>
+                    <div class="text-left">
+                        <p class="font-bold text-tech-teal">Educational Partnership</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">Melrose Leadership Academy • Oakland, CA</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <a href="#context" class="group relative px-10 py-5 bg-gradient-to-r from-tech-blue to-tech-purple text-white font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105 overflow-hidden">
+                    <span class="relative z-10">Explore Project</span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-tech-purple to-tech-blue opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute -inset-1 bg-gradient-to-r from-tech-blue to-tech-purple rounded-2xl blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-500"></div>
+                    <i class="fas fa-arrow-down ml-3 relative z-10 animate-bounce"></i>
+                </a>
+                <a href="#design" class="group relative px-10 py-5 bg-gradient-to-r from-tech-green to-tech-cyan text-white font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105 overflow-hidden">
+                    <span class="relative z-10">Design Objectives</span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-tech-cyan to-tech-green opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <i class="fas fa-cogs ml-3 relative z-10"></i>
+                </a>
+            </div>
+            
+            <!-- Floating Tech Icons -->
+            <div class="mt-20 flex justify-center space-x-8">
+                <div class="floating animation-delay-0">
+                    <i class="fas fa-child text-4xl text-tech-teal opacity-70"></i>
+                </div>
+                <div class="floating animation-delay-200">
+                    <i class="fas fa-brain text-4xl text-tech-purple opacity-70"></i>
+                </div>
+                <div class="floating animation-delay-400">
+                    <i class="fas fa-robot text-4xl text-tech-orange opacity-70"></i>
+                </div>
+                <div class="floating animation-delay-600">
+                    <i class="fas fa-gamepad text-4xl text-tech-blue opacity-70"></i>
+                </div>
+                <div class="floating animation-delay-800">
+                    <i class="fas fa-universal-access text-4xl text-tech-green opacity-70"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Context Section -->
+    <section id="context" class="py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
+        <div class="absolute inset-0 bg-circuit-board opacity-5"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-7xl mx-auto">
+                <!-- Section Header with Animation -->
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black mb-6 text-gray-800 dark:text-white inline-block">
+                        <span class="gradient-text">
+                            Project Context
+                        </span>
+                    </h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-light">
+                        Partnering with 5th grade students at Melrose Leadership Academy to create inclusive STEM games
+                    </p>
+                </div>
+                
+                <div class="grid lg:grid-cols-2 gap-12 mb-16">
+                    <!-- Project Overview -->
+                    <div class="tech-card p-8 rounded-3xl">
+                        <div class="flex items-start mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-tech-blue to-tech-indigo flex items-center justify-center mr-4 shadow-lg">
+                                <i class="fas fa-rocket text-white text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 dark:text-white">The PlaySTEM Initiative</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg leading-relaxed">
+                            Welcome to your major group design project for Cornerstone of Engineering 2! This semester, your team will take on the role of engineers at PlaySTEM, a startup I'm envisioning for the future. You'll partner with actual 5th grade students and their teachers at Melrose Leadership Academy in Oakland, who will guide your design by sharing what they need from an interactive STEM game.
+                        </p>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg leading-relaxed">
+                            Through hands-on application of the engineering design cycle, you'll gather user requirements, design solutions, build prototypes, and iterate based on feedback. This experiential learning approach will show you how engineers create tailored solutions for real people while maintaining professional documentation throughout the process.
+                        </p>
+                    </div>
+                    
+                    <!-- The Problem -->
+                    <div class="tech-card p-8 rounded-3xl">
+                        <div class="flex items-start mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-tech-teal to-tech-green flex items-center justify-center mr-4 shadow-lg">
+                                <i class="fas fa-exclamation-circle text-white text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 dark:text-white">The Educational Challenge</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg leading-relaxed">
+                            Fifth graders at Melrose Leadership Academy need inclusive, engaging STEM games that work for all learners and expose them to STEM at a young age. Most existing educational games fail to accommodate diverse abilities, language backgrounds, and learning styles, while also perpetuating gender gaps in STEM interest and lacking alignment with California Common Core standards.
+                        </p>
+                        <div class="tech-card p-6 rounded-2xl bg-gradient-to-r from-tech-orange/10 via-tech-red/10 to-tech-pink/10">
+                            <h4 class="font-bold mb-4 text-gray-800 dark:text-white">Our Design Challenge</h4>
+                            <p class="text-gray-600 dark:text-gray-300">
+                                Create custom, hands-on interactive games that provide early STEM exposure, inspire curiosity, support cognitive development, meet curriculum requirements, and welcome every student—regardless of ability, gender, or language—into STEM learning.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Structure -->
+                <div class="tech-card p-8 rounded-3xl">
+                    <div class="flex items-center mb-8">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-tech-purple to-tech-pink flex items-center justify-center mr-4 shadow-lg">
+                            <i class="fas fa-project-diagram text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Project Structure & Milestones</h3>
+                    </div>
+                    
+                    <p class="text-gray-600 dark:text-gray-300 mb-8 text-lg leading-relaxed">
+                        The project is divided into several milestones that will guide you through the engineering design process, resembling how a small engineering firm would address a real-world problem. The milestones will require you to delve deeper into and practice various elements of the engineering design process.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="tech-card p-6 rounded-2xl text-center hover:scale-105 transition-all duration-300">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-blue to-tech-cyan flex items-center justify-center shadow-lg">
+                                <span class="text-white font-bold text-xl">1</span>
+                            </div>
+                            <h4 class="font-bold mb-3 text-gray-800 dark:text-white">User Research</h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">Understanding 5th graders' needs and preferences through direct partnership</p>
+                        </div>
+                        
+                        <div class="tech-card p-6 rounded-2xl text-center hover:scale-105 transition-all duration-300">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-green to-tech-teal flex items-center justify-center shadow-lg">
+                                <span class="text-white font-bold text-xl">2</span>
+                            </div>
+                            <h4 class="font-bold mb-3 text-gray-800 dark:text-white">Design & Prototyping</h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">Creating inclusive STEM games with Raspberry Pi Pico integration</p>
+                        </div>
+                        
+                        <div class="tech-card p-6 rounded-2xl text-center hover:scale-105 transition-all duration-300">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-orange to-tech-red flex items-center justify-center shadow-lg">
+                                <span class="text-white font-bold text-xl">3</span>
+                            </div>
+                            <h4 class="font-bold mb-3 text-gray-800 dark:text-white">Testing & Iteration</h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">Refining designs based on feedback from students and teachers</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Educational Goals Section -->
+    <section id="goals" class="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 relative">
+        <div class="absolute inset-0 bg-grid-dots opacity-10"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-7xl mx-auto">
+                <!-- Section Header -->
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black mb-6 text-gray-800 dark:text-white">
+                        <span class="gradient-text">
+                            Educational Goals
+                        </span>
+                    </h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-light">
+                        Mastering the engineering process while creating meaningful educational impact
+                    </p>
+                </div>
+                
+                <!-- Goals Grid -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+                    <!-- Goal 1 -->
+                    <div class="tech-card p-8 rounded-3xl">
+                        <div class="flex items-start mb-6">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-tech-blue to-tech-indigo flex items-center justify-center mr-4 shadow-lg">
+                                <i class="fas fa-sync-alt text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Engineering Design Cycle Mastery</h3>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">
+                            Navigate through the entire engineering design cycle, from identifying the problem to creating prototypes, ensuring a comprehensive approach with a real-world application.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-blue/20 to-tech-blue/10 text-tech-blue text-xs font-semibold">Problem Identification</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-blue/20 to-tech-blue/10 text-tech-blue text-xs font-semibold">Solution Design</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-blue/20 to-tech-blue/10 text-tech-blue text-xs font-semibold">Prototyping</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-blue/20 to-tech-blue/10 text-tech-blue text-xs font-semibold">Testing</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-blue/20 to-tech-blue/10 text-tech-blue text-xs font-semibold">Iteration</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Goal 2 -->
+                    <div class="tech-card p-8 rounded-3xl">
+                        <div class="flex items-start mb-6">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-tech-green to-tech-teal flex items-center justify-center mr-4 shadow-lg">
+                                <i class="fas fa-file-alt text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Documentation & Communication Mastery</h3>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">
+                            Document every step to be able to communicate your work through written, oral, and graphical reports. Professional documentation is essential for engineering success.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-green/20 to-tech-green/10 text-tech-green text-xs font-semibold">Written Reports</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-green/20 to-tech-green/10 text-tech-green text-xs font-semibold">Oral Presentations</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-green/20 to-tech-green/10 text-tech-green text-xs font-semibold">Technical Drawings</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-green/20 to-tech-green/10 text-tech-green text-xs font-semibold">Design Notebooks</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Goal 3 -->
+                    <div class="tech-card p-8 rounded-3xl">
+                        <div class="flex items-start mb-6">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-tech-purple to-tech-pink flex items-center justify-center mr-4 shadow-lg">
+                                <i class="fas fa-users text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Project Management & Teamwork Mastery</h3>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">
+                            Meet deadlines through the use of project management tools such as Gantt charts and develop leadership and teamwork skills essential for professional engineering practice.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-purple/20 to-tech-purple/10 text-tech-purple text-xs font-semibold">Gantt Charts</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-purple/20 to-tech-purple/10 text-tech-purple text-xs font-semibold">Team Leadership</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-purple/20 to-tech-purple/10 text-tech-purple text-xs font-semibold">Collaboration</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-purple/20 to-tech-purple/10 text-tech-purple text-xs font-semibold">Deadline Management</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Goal 4 -->
+                    <div class="tech-card p-8 rounded-3xl">
+                        <div class="flex items-start mb-6">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-tech-orange to-tech-red flex items-center justify-center mr-4 shadow-lg">
+                                <i class="fas fa-tools text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Makerspace Etiquette & Safety</h3>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">
+                            Uphold makerspace etiquette by adhering to safety guidelines, supporting your peers, maintaining a tidy workspace, and practicing caution with tools, and fostering an environment of shared learning.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-orange/20 to-tech-orange/10 text-tech-orange text-xs font-semibold">Safety Protocols</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-orange/20 to-tech-orange/10 text-tech-orange text-xs font-semibold">Tool Proficiency</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-orange/20 to-tech-orange/10 text-tech-orange text-xs font-semibold">Clean Workspace</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-orange/20 to-tech-orange/10 text-tech-orange text-xs font-semibold">Peer Support</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Learning Philosophy -->
+                <div class="mt-16 tech-card p-8 rounded-3xl bg-gradient-to-r from-tech-indigo/10 to-tech-teal/10 border border-tech-indigo/20">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-tech-indigo to-tech-teal flex items-center justify-center mr-4 shadow-lg">
+                            <i class="fas fa-star text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Elevate, Excel, Learn</h3>
+                    </div>
+                    
+                    <p class="text-gray-600 dark:text-gray-300 mb-6 text-lg leading-relaxed">
+                        Elevate your experience, surpass expectations, challenge yourself to step beyond the familiar and excel in the dynamic world of design. Embrace the "fail fast" philosophy, recognizing that through iterative attempts, failures become stepping stones for improvement in subsequent designs.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-blue/20 to-tech-indigo/20 flex items-center justify-center">
+                                <i class="fas fa-mountain text-tech-blue text-3xl"></i>
+                            </div>
+                            <h4 class="font-bold mb-2 text-gray-800 dark:text-white">Elevate</h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">Raise your standards and aspirations</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-green/20 to-tech-teal/20 flex items-center justify-center">
+                                <i class="fas fa-trophy text-tech-green text-3xl"></i>
+                            </div>
+                            <h4 class="font-bold mb-2 text-gray-800 dark:text-white">Excel</h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">Surpass expectations and limitations</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-purple/20 to-tech-pink/20 flex items-center justify-center">
+                                <i class="fas fa-lightbulb text-tech-purple text-3xl"></i>
+                            </div>
+                            <h4 class="font-bold mb-2 text-gray-800 dark:text-white">Learn</h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">Grow from every iteration</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Design Objectives Section -->
+    <section id="design" class="py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
+        <div class="absolute inset-0 bg-circuit-board opacity-5"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black mb-6 text-gray-800 dark:text-white">
+                        <span class="gradient-text">
+                            Design Objectives
+                        </span>
+                    </h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-light">
+                        Creating inclusive, engaging, and educational STEM games for diverse learners
+                    </p>
+                </div>
+                
+                <!-- Main Design Objectives -->
+                <div class="grid lg:grid-cols-2 gap-12 mb-16">
+                    <!-- Objective 1 -->
+                    <div class="tech-card p-8 rounded-3xl">
+                        <div class="flex items-start mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-tech-teal to-tech-green flex items-center justify-center mr-4 shadow-lg">
+                                <i class="fas fa-users text-white text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Needs-Based Design</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">
+                            Identify and understand the specific needs of the elementary school students at MLA and their teachers, taking into account the diverse requirements of all students, including those with special needs and the importance of gender inclusivity in STEM engagement.
+                        </p>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-tech-teal/20 to-tech-green/20 flex items-center justify-center mr-3 mt-1">
+                                    <i class="fas fa-check text-tech-teal"></i>
+                                </div>
+                                <span class="text-gray-600 dark:text-gray-300">Align with California Common Core standards</span>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-tech-teal/20 to-tech-green/20 flex items-center justify-center mr-3 mt-1">
+                                    <i class="fas fa-check text-tech-teal"></i>
+                                </div>
+                                <span class="text-gray-600 dark:text-gray-300">Reference Math/Science Nucleus curriculum</span>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-tech-teal/20 to-tech-green/20 flex items-center justify-center mr-3 mt-1">
+                                    <i class="fas fa-check text-tech-teal"></i>
+                                </div>
+                                <span class="text-gray-600 dark:text-gray-300">Ensure educational effectiveness and relevance</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Objective 2 -->
+                    <div class="tech-card p-8 rounded-3xl">
+                        <div class="flex items-start mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-tech-blue to-tech-indigo flex items-center justify-center mr-4 shadow-lg">
+                                <i class="fas fa-atom text-white text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 dark:text-white">STEM Integration</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-6">
+                            Seamlessly integrate concepts from Science, Technology, Engineering, and Mathematics into your designs, creating a playful learning environment for early-age exploration.
+                        </p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center">
+                                <div class="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br from-tech-blue/20 to-tech-indigo/20 flex items-center justify-center">
+                                    <i class="fas fa-flask text-tech-blue"></i>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Science</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br from-tech-green/20 to-tech-teal/20 flex items-center justify-center">
+                                    <i class="fas fa-microchip text-tech-green"></i>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Technology</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br from-tech-orange/20 to-tech-red/20 flex items-center justify-center">
+                                    <i class="fas fa-cogs text-tech-orange"></i>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Engineering</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br from-tech-purple/20 to-tech-pink/20 flex items-center justify-center">
+                                    <i class="fas fa-calculator text-tech-purple"></i>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Mathematics</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Objectives -->
+                <div class="grid md:grid-cols-3 gap-8 mb-16">
+                    <!-- Objective 3 -->
+                    <div class="tech-card p-6 rounded-3xl">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-tech-purple to-tech-pink flex items-center justify-center mr-3 shadow-md">
+                                <i class="fas fa-lightbulb text-white"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 dark:text-white">Innovative Design</h4>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            Come up with innovative designs or modifications to existing designs that address the project specifications and user needs creatively.
+                        </p>
+                    </div>
+                    
+                    <!-- Objective 4 -->
+                    <div class="tech-card p-6 rounded-3xl">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-tech-orange to-tech-red flex items-center justify-center mr-3 shadow-md">
+                                <i class="fas fa-palette text-white"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 dark:text-white">Aesthetics</h4>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            Pay attention to aesthetics, covering up wires, and maintaining a polished appearance that appeals to young learners while maintaining functionality.
+                        </p>
+                    </div>
+                    
+                    <!-- Objective 5 -->
+                    <div class="tech-card p-6 rounded-3xl">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-tech-green to-tech-teal flex items-center justify-center mr-3 shadow-md">
+                                <i class="fas fa-gamepad text-white"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 dark:text-white">Interactivity & Engagement</h4>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            Include interactive elements for users, involving digital or mechanical interactions. Ensure user-facing information and interactive elements are crafted with care.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Technical Requirements -->
+                <div class="tech-card p-8 rounded-3xl mb-12">
+                    <div class="flex items-center mb-8">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-tech-red to-tech-orange flex items-center justify-center mr-4 shadow-lg">
+                            <i class="fas fa-microchip text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Technical Requirements</h3>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-bold mb-4 text-gray-800 dark:text-white">Required Components</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-tech-blue to-tech-cyan flex items-center justify-center mr-3">
+                                        <i class="fas fa-check text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-gray-600 dark:text-gray-300">Integrate at least 4-5 electronic components from Pico kit</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-tech-blue to-tech-cyan flex items-center justify-center mr-3">
+                                        <i class="fas fa-check text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-gray-600 dark:text-gray-300">One component responsibility per team member</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-tech-blue to-tech-cyan flex items-center justify-center mr-3">
+                                        <i class="fas fa-check text-white text-xs"></i>
+                                    </div>
+                                    <span class="text-gray-600 dark:text-gray-300">User interaction and feedback systems</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-bold mb-4 text-gray-800 dark:text-white">Bonus Objectives</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-tech-green to-tech-teal flex items-center justify-center mr-3">
+                                        <span class="text-white font-bold text-xs">+5</span>
+                                    </div>
+                                    <span class="text-gray-600 dark:text-gray-300">Design for automatic reset of the game</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-tech-purple to-tech-pink flex items-center justify-center mr-3">
+                                        <span class="text-white font-bold text-xs">+7</span>
+                                    </div>
+                                    <span class="text-gray-600 dark:text-gray-300">Meet Universal Design Principles (1 pt per criteria)</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-tech-orange to-tech-red flex items-center justify-center mr-3">
+                                        <span class="text-white font-bold text-xs">+5</span>
+                                    </div>
+                                    <span class="text-gray-600 dark:text-gray-300">Use a unique electronic component</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Universal Design Principles -->
+                <div class="tech-card p-8 rounded-3xl">
+                    <div class="flex items-center mb-8">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-tech-indigo to-tech-teal flex items-center justify-center mr-4 shadow-lg">
+                            <i class="fas fa-universal-access text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Universal Design Principles</h3>
+                    </div>
+                    
+                    <p class="text-gray-600 dark:text-gray-300 mb-8 text-lg leading-relaxed">
+                        Our designs must incorporate Universal Design Principles to ensure accessibility and inclusivity for all students, regardless of ability, language, or learning style.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="udp-item tech-card p-5 rounded-2xl">
+                            <h5 class="font-bold mb-2 text-gray-800 dark:text-white">Equitable Use</h5>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Design useful and marketable to people with diverse abilities</p>
+                        </div>
+                        <div class="udp-item tech-card p-5 rounded-2xl">
+                            <h5 class="font-bold mb-2 text-gray-800 dark:text-white">Flexibility in Use</h5>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Accommodate a wide range of individual preferences and abilities</p>
+                        </div>
+                        <div class="udp-item tech-card p-5 rounded-2xl">
+                            <h5 class="font-bold mb-2 text-gray-800 dark:text-white">Simple & Intuitive</h5>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Easy to understand, regardless of user's experience or language</p>
+                        </div>
+                        <div class="udp-item tech-card p-5 rounded-2xl">
+                            <h5 class="font-bold mb-2 text-gray-800 dark:text-white">Perceptible Information</h5>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Communicate necessary information effectively to the user</p>
+                        </div>
+                        <div class="udp-item tech-card p-5 rounded-2xl">
+                            <h5 class="font-bold mb-2 text-gray-800 dark:text-white">Tolerance for Error</h5>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Minimize hazards and adverse consequences of accidental actions</p>
+                        </div>
+                        <div class="udp-item tech-card p-5 rounded-2xl">
+                            <h5 class="font-bold mb-2 text-gray-800 dark:text-white">Low Physical Effort</h5>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">Can be used efficiently and comfortably with minimum fatigue</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 relative overflow-hidden">
+        <div class="absolute inset-0 bg-grid-dots opacity-10"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black mb-6 text-gray-800 dark:text-white">
+                        <span class="gradient-text">
+                            Our Engineering Team
+                        </span>
+                    </h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-light">
+                        Collaborating to create inclusive STEM experiences for the next generation
+                    </p>
+                </div>
+                
+                <!-- Team Members -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                    <!-- Team Member 1 -->
+                    <div class="tech-card p-6 rounded-3xl text-center hover:scale-105 transition-all duration-300">
+                        <div class="w-24 h-24 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-blue to-tech-cyan flex items-center justify-center shadow-lg">
+                            <i class="fas fa-user-astronaut text-white text-3xl"></i>
+                        </div>
+                        <h4 class="font-bold text-xl mb-2 text-gray-800 dark:text-white">Dabian Taborda Restrepo</h4>
+                        <p class="text-tech-blue dark:text-tech-blue mb-4 font-semibold">Project Lead</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                            Specializing in systems integration and user experience design
+                        </p>
+                        <div class="flex justify-center space-x-3">
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-blue/20 to-tech-blue/10 text-tech-blue text-xs">CAD Design</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-cyan/20 to-tech-cyan/10 text-tech-cyan text-xs">Python</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Team Member 2 -->
+                    <div class="tech-card p-6 rounded-3xl text-center hover:scale-105 transition-all duration-300">
+                        <div class="w-24 h-24 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-green to-tech-teal flex items-center justify-center shadow-lg">
+                            <i class="fas fa-user-ninja text-white text-3xl"></i>
+                        </div>
+                        <h4 class="font-bold text-xl mb-2 text-gray-800 dark:text-white">Eileen Zheng</h4>
+                        <p class="text-tech-green dark:text-tech-green mb-4 font-semibold">Electronics Specialist</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                            Focused on circuit design and component integration
+                        </p>
+                        <div class="flex justify-center space-x-3">
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-green/20 to-tech-green/10 text-tech-green text-xs">Electronics</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-teal/20 to-tech-teal/10 text-tech-teal text-xs">Testing</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Team Member 3 -->
+                    <div class="tech-card p-6 rounded-3xl text-center hover:scale-105 transition-all duration-300">
+                        <div class="w-24 h-24 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-purple to-tech-pink flex items-center justify-center shadow-lg">
+                            <i class="fas fa-user-secret text-white text-3xl"></i>
+                        </div>
+                        <h4 class="font-bold text-xl mb-2 text-gray-800 dark:text-white">Jingwen Huang</h4>
+                        <p class="text-tech-purple dark:text-tech-purple mb-4 font-semibold">Software Engineer</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                            Developing game logic and interactive programming
+                        </p>
+                        <div class="flex justify-center space-x-3">
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-purple/20 to-tech-purple/10 text-tech-purple text-xs">Programming</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-pink/20 to-tech-pink/10 text-tech-pink text-xs">Game Logic</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Team Member 4 -->
+                    <div class="tech-card p-6 rounded-3xl text-center hover:scale-105 transition-all duration-300">
+                        <div class="w-24 h-24 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-orange to-tech-red flex items-center justify-center shadow-lg">
+                            <i class="fas fa-user-tie text-white text-3xl"></i>
+                        </div>
+                        <h4 class="font-bold text-xl mb-2 text-gray-800 dark:text-white">Skyler Wang</h4>
+                        <p class="text-tech-orange dark:text-tech-orange mb-4 font-semibold">Design & Fabrication</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                            Creating physical prototypes and enclosure design
+                        </p>
+                        <div class="flex justify-center space-x-3">
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-orange/20 to-tech-orange/10 text-tech-orange text-xs">Prototyping</span>
+                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-tech-red/20 to-tech-red/10 text-tech-red text-xs">Fabrication</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Team Collaboration -->
+                <div class="tech-card p-8 rounded-3xl bg-gradient-to-r from-tech-indigo/10 via-tech-purple/10 to-tech-pink/10 border border-tech-indigo/20">
+                    <div class="flex items-center mb-8">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-tech-indigo to-tech-purple flex items-center justify-center mr-4 shadow-lg">
+                            <i class="fas fa-handshake text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white">Our Collaborative Approach</h3>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-blue/20 to-tech-cyan/20 flex items-center justify-center">
+                                <i class="fas fa-comments text-tech-blue text-2xl"></i>
+                            </div>
+                            <h4 class="font-bold mb-2 text-gray-800 dark:text-white">Weekly Meetings</h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">Regular team syncs to track progress and address challenges</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-green/20 to-tech-teal/20 flex items-center justify-center">
+                                <i class="fas fa-tasks text-tech-green text-2xl"></i>
+                            </div>
+                            <h4 class="font-bold mb-2 text-gray-800 dark:text-white">Agile Workflow</h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">Iterative development with clear milestones and deliverables</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-tech-orange/20 to-tech-red/20 flex items-center justify-center">
+                                <i class="fas fa-share-alt text-tech-orange text-2xl"></i>
+                            </div>
+                            <h4 class="font-bold mb-2 text-gray-800 dark:text-white">Shared Documentation</h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">Comprehensive design notebooks and technical documentation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Footer -->
+    <footer class="bg-gradient-to-b from-gray-900 to-gray-950 text-white pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid lg:grid-cols-3 gap-12 mb-12">
+                    <!-- Brand Section -->
+                    <div>
+                        <div class="flex items-center space-x-4 mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-tech-blue to-tech-purple rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-graduation-cap text-white"></i>
+                            </div>
+                            <div>
+                                <a href="#home" class="text-2xl font-black text-gray-200 hover:text-white transition-colors">
+                                    PlaySTEM
+                                </a>
+                                <a href="#home" class="text-2xl font-black gradient-text">
+                                    Initiative
+                                </a>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-4">
+                            An engineering design project for Cornerstone of Engineering 2, in partnership with Melrose Leadership Academy.
+                        </p>
+                        <p class="text-gray-400 text-sm mt-2">
+                            Last updated: <span id="lastEdited" class="font-bold text-gray-300"></span>
+                        </p>
+                    </div>
+                    
+                    <!-- Project Sections -->
+                    <div>
+                        <h4 class="text-lg font-bold mb-6 text-gray-200">Project Sections</h4>
+                        <ul class="space-y-3">
+                            <li>
+                                <a href="#home" class="text-gray-400 hover:text-tech-blue transition-colors duration-300 flex items-center group">
+                                    <i class="fas fa-chevron-right text-xs mr-3 group-hover:translate-x-2 transition-transform duration-300"></i>
+                                    Home
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#context" class="text-gray-400 hover:text-tech-blue transition-colors duration-300 flex items-center group">
+                                    <i class="fas fa-chevron-right text-xs mr-3 group-hover:translate-x-2 transition-transform duration-300"></i>
+                                    Project Context
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#goals" class="text-gray-400 hover:text-tech-blue transition-colors duration-300 flex items-center group">
+                                    <i class="fas fa-chevron-right text-xs mr-3 group-hover:translate-x-2 transition-transform duration-300"></i>
+                                    Educational Goals
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#design" class="text-gray-400 hover:text-tech-blue transition-colors duration-300 flex items-center group">
+                                    <i class="fas fa-chevron-right text-xs mr-3 group-hover:translate-x-2 transition-transform duration-300"></i>
+                                    Design Objectives
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#team" class="text-gray-400 hover:text-tech-blue transition-colors duration-300 flex items-center group">
+                                    <i class="fas fa-chevron-right text-xs mr-3 group-hover:translate-x-2 transition-transform duration-300"></i>
+                                    Our Team
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Educational Resources -->
+                    <div>
+                        <h4 class="text-lg font-bold mb-6 text-gray-200">Educational Resources</h4>
+                        <div class="space-y-4">
+                            <a href="https://www.cde.ca.gov/re/cc/" target="_blank" class="text-gray-400 hover:text-tech-blue transition-colors duration-300 flex items-center group">
+                                <i class="fas fa-external-link-alt text-xs mr-3"></i>
+                                California Common Core Standards
+                            </a>
+                            <a href="https://msnucleus.org/" target="_blank" class="text-gray-400 hover:text-tech-blue transition-colors duration-300 flex items-center group">
+                                <i class="fas fa-external-link-alt text-xs mr-3"></i>
+                                Math/Science Nucleus
+                            </a>
+                            <a href="https://melroseleadershipacademy.org/" target="_blank" class="text-gray-400 hover:text-tech-blue transition-colors duration-300 flex items-center group">
+                                <i class="fas fa-external-link-alt text-xs mr-3"></i>
+                                Melrose Leadership Academy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Copyright -->
+                <div class="border-t border-gray-800 pt-8 text-center">
+                    <p class="text-gray-400">
+                        © 2025 PlaySTEM Initiative - Engineering Design Portfolio. This portfolio documents an academic engineering project focused on creating inclusive STEM educational games for 5th grade students.
+                    </p>
+                    <p class="text-gray-500 text-sm mt-2">
+                        Cornerstone of Engineering 2 • University Engineering Program
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Advanced JavaScript -->
+    <script>
+        // Initialize Particles.js
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof particlesJS !== 'undefined') {
+                particlesJS('particles-js', {
+                    particles: {
+                        number: { value: 80, density: { enable: true, value_area: 800 } },
+                        color: { value: "#3b82f6" },
+                        shape: { type: "circle" },
+                        opacity: { value: 0.5, random: true },
+                        size: { value: 3, random: true },
+                        line_linked: {
+                            enable: true,
+                            distance: 150,
+                            color: "#3b82f6",
+                            opacity: 0.2,
+                            width: 1
+                        },
+                        move: {
+                            enable: true,
+                            speed: 2,
+                            direction: "none",
+                            random: true,
+                            straight: false,
+                            out_mode: "out",
+                            bounce: false
+                        }
+                    },
+                    interactivity: {
+                        detect_on: "canvas",
+                        events: {
+                            onhover: { enable: true, mode: "repulse" },
+                            onclick: { enable: true, mode: "push" }
+                        }
+                    },
+                    retina_detect: true
+                });
+            }
+
+            // Create Binary Code Animation
+            function createBinaryAnimation() {
+                const container = document.getElementById('binaryContainer');
+                if (!container) return;
+                
+                const binaryChars = ['0', '1'];
+                const digitCount = 50;
+                
+                for (let i = 0; i < digitCount; i++) {
+                    const digit = document.createElement('div');
+                    digit.className = 'binary-digit';
+                    digit.textContent = binaryChars[Math.floor(Math.random() * binaryChars.length)];
+                    digit.style.left = `${Math.random() * 100}%`;
+                    digit.style.top = `${Math.random() * -100}px`;
+                    digit.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                    digit.style.animationDelay = `${Math.random() * 5}s`;
+                    container.appendChild(digit);
+                }
+            }
+            
+            createBinaryAnimation();
+
+            // Theme Toggle Functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+                document.documentElement.classList.add('dark');
+            }
+            
+            themeToggle.addEventListener('click', function() {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+            
+            // Mobile menu toggle
+            function toggleMobileMenu() {
+                const mobileMenu = document.getElementById('mobileMenu');
+                mobileMenu.classList.toggle('hidden');
+            }
+            
+            // Expose function to global scope for onclick
+            window.toggleMobileMenu = toggleMobileMenu;
+
+            // Active navigation highlighting
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            
+            function updateActiveNav() {
+                let current = '';
+                const scrollPos = window.scrollY + 100;
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    
+                    if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                if (scrollPos < 100) {
+                    current = 'home';
+                }
+                
+                // Update desktop nav links
+                navLinks.forEach(link => {
+                    link.classList.remove('text-tech-blue', 'dark:text-tech-blue', 'active');
+                    link.classList.add('text-gray-600', 'dark:text-gray-300');
+                    
+                    if (link.getAttribute('data-target') === current) {
+                        link.classList.remove('text-gray-600', 'dark:text-gray-300');
+                        link.classList.add('text-tech-blue', 'dark:text-tech-blue', 'active');
+                    }
+                });
+                
+                // Update mobile nav links
+                mobileNavLinks.forEach(link => {
+                    link.classList.remove('text-tech-blue', 'dark:text-tech-blue');
+                    link.classList.add('text-gray-600', 'dark:text-gray-300');
+                    
+                    if (link.getAttribute('data-target') === current) {
+                        link.classList.remove('text-gray-600', 'dark:text-gray-300');
+                        link.classList.add('text-tech-blue', 'dark:text-tech-blue');
+                    }
+                });
+            }
+            
+            // Initial call
+            updateActiveNav();
+            
+            // Listen for scroll events
+            window.addEventListener('scroll', updateActiveNav);
+            
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const href = this.getAttribute('href');
+                    
+                    if (href === '#' || href === '#home') {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        const targetElement = document.querySelector(href);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                    
+                    // Close mobile menu if open
+                    const mobileMenu = document.getElementById('mobileMenu');
+                    if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+            
+            // Last updated date
+            document.getElementById("lastEdited").textContent =
+                new Date().toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                });
+
+            // Add hover effects to all cards
+            document.querySelectorAll('.tech-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-15px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Parallax effect for hero section
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const hero = document.querySelector('#home');
+                if (hero) {
+                    hero.style.transform = `translateY(${scrolled * 0.1}px)`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
