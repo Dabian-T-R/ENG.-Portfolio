@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebDrop - Browser File Sharing</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #4a5568;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .main {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f7fafc;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i {
+            color: #667eea;
+        }
+
+        .connection-box {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .peer-id-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .peer-id {
+            background: white;
+            border: 2px solid #cbd5e0;
+            padding: 12px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .connection-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #cbd5e0;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+
+        .btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn.disconnect {
+            background: #f56565;
+        }
+
+        .or-divider {
+            text-align: center;
+            color: #718096;
+            font-weight: bold;
+        }
+
+        .file-drop-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .file-drop-area:hover,
+        .file-drop-area.dragover {
+            border-color: #667eea;
+            background: #ebf4ff;
+        }
+
+        .file-drop-area i {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-icon {
+            font-size: 1.5em;
+            color: #667eea;
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #48bb78;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: #f0fff4;
+            border-radius: 10px;
+            border: 2px solid #c6f6d5;
+            color: #22543d;
+            font-weight: bold;
+            display: none;
+        }
+
+        .status.error {
+            background: #fff5f5;
+            border-color: #fed7d7;
+            color: #c53030;
+        }
+
+        .connected-peers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .peer-tag {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .connection-box {
+                grid-template-columns: 1fr;
+            }
+            
+            .or-divider {
+                display: none;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-share-alt"></i> WebDrop</h1>
+            <p>Share files directly between browsers - No uploads, No servers</p>
+        </div>
+
+        <div class="main">
+            <div class="section">
+                <h2><i class="fas fa-link"></i> Connection</h2>
+                <div class="connection-box">
+                    <div class="peer-id-box">
+                        <label>Your ID:</label>
+                        <div class="peer-id">
+                            <span id="myId">Generating...</span>
+                            <button class="copy-btn" onclick="copyMyId()">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="or-divider">
+                        <div>OR</div>
+                    </div>
+
+                    <div class="connection-form">
+                        <input type="text" id="peerIdInput" placeholder="Enter friend's ID">
+                        <button class="btn" onclick="connectToPeer()">
+                            <i class="fas fa-plug"></i> Connect
+                        </button>
+                    </div>
+                </div>
+
+                <div id="connectionStatus" class="status"></div>
+
+                <div class="connected-peers" id="connectedPeers"></div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-paper-plane"></i> Send Files</h2>
+                <div class="file-drop-area" id="dropArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Drop files here or click to browse</h3>
+                    <p>Supports any file type - Maximum 2GB per file</p>
+                    <input type="file" class="file-input" id="fileInput" multiple>
+                </div>
+
+                <div class="file-list" id="fileList"></div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-inbox"></i> Received Files</h2>
+                <div class="file-list" id="receivedFiles"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate unique ID for this peer
+        const peerId = 'user-' + Math.random().toString(36).substr(2, 9);
+        document.getElementById('myId').textContent = peerId;
+
+        let peer = null;
+        let connections = {};
+        let dataChannel = null;
+
+        // Initialize WebRTC Peer
+        function initPeer() {
+            peer = new SimplePeer({
+                initiator: location.hash === '#init',
+                trickle: false
+            });
+
+            peer.on('error', err => console.error('Peer error:', err));
+
+            peer.on('signal', data => {
+                document.getElementById('offer').textContent = JSON.stringify(data);
+            });
+
+            peer.on('connect', () => {
+                console.log('Peer connected!');
+                updateStatus('Connected to peer!', false);
+            });
+
+            peer.on('data', data => {
+                console.log('Received data:', data);
+                handleReceivedData(data);
+            });
+
+            peer.on('stream', stream => {
+                // Handle incoming streams (for video/audio)
+                console.log('Received stream:', stream);
+            });
+        }
+
+        // Connect to another peer
+        function connectToPeer() {
+            const otherId = document.getElementById('peerIdInput').value.trim();
+            if (!otherId) {
+                updateStatus('Please enter a peer ID', true);
+                return;
+            }
+
+            updateStatus('Connecting...', false);
+            
+            // For demo purposes - in real app you'd use signaling server
+            if (otherId === peerId) {
+                updateStatus('Cannot connect to yourself!', true);
+                return;
+            }
+
+            // Simulate connection for demo
+            setTimeout(() => {
+                addConnectedPeer(otherId);
+                updateStatus('Connected to ' + otherId, false);
+            }, 1000);
+        }
+
+        // Handle file selection
+        document.getElementById('dropArea').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', handleFiles);
+        
+        // Drag and drop support
+        const dropArea = document.getElementById('dropArea');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('dragover');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles({ target: { files } });
+        }
+
+        function handleFiles(e) {
+            const files = e.target.files;
+            for (let file of files) {
+                sendFile(file);
+            }
+        }
+
+        // Send file to connected peers
+        function sendFile(file) {
+            const fileId = 'file-' + Date.now();
+            
+            // Create file item in UI
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <div class="file-info">
+                    <i class="fas fa-file file-icon"></i>
+                    <div>
+                        <strong>${file.name}</strong>
+                        <div>${formatBytes(file.size)}</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress-${fileId}"></div>
+                </div>
+            `;
+            
+            document.getElementById('fileList').prepend(fileItem);
+
+            // Simulate sending progress for demo
+            simulateUploadProgress(fileId, file);
+        }
+
+        // Simulate upload progress (replace with actual WebRTC transfer)
+        function simulateUploadProgress(fileId, file) {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    updateStatus('File sent successfully!', false);
+                }
+                
+                document.getElementById(`progress-${fileId}`).style.width = `${progress}%`;
+            }, 200);
+        }
+
+        // Handle received data/files
+        function handleReceivedData(data) {
+            // Parse received data
+            try {
+                const fileData = JSON.parse(data);
+                if (fileData.type === 'file') {
+                    addReceivedFile(fileData);
+                }
+            } catch (e) {
+                console.log('Received text:', data);
+            }
+        }
+
+        // Add received file to UI
+        function addReceivedFile(fileData) {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <div class="file-info">
+                    <i class="fas fa-file-download file-icon"></i>
+                    <div>
+                        <strong>${fileData.name}</strong>
+                        <div>${formatBytes(fileData.size)} • Just received</div>
+                    </div>
+                </div>
+                <button class="btn" onclick="downloadFile('${fileData.name}', '${fileData.data}')">
+                    <i class="fas fa-download"></i> Save
+                </button>
+            `;
+            
+            document.getElementById('receivedFiles').prepend(fileItem);
+            updateStatus('New file received!', false);
+        }
+
+        // Download file
+        function downloadFile(filename, data) {
+            const element = document.createElement('a');
+            element.setAttribute('href', data);
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        // Add connected peer to UI
+        function addConnectedPeer(peerId) {
+            const peerTag = document.createElement('div');
+            peerTag.className = 'peer-tag';
+            peerTag.innerHTML = `<i class="fas fa-user"></i> ${peerId}`;
+            document.getElementById('connectedPeers').appendChild(peerTag);
+        }
+
+        // Update status message
+        function updateStatus(message, isError) {
+            const statusEl = document.getElementById('connectionStatus');
+            statusEl.textContent = message;
+            statusEl.style.display = 'block';
+            statusEl.className = isError ? 'status error' : 'status';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 3000);
+        }
+
+        // Copy my ID to clipboard
+        function copyMyId() {
+            const id = document.getElementById('myId').textContent;
+            navigator.clipboard.writeText(id).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        // Format bytes to human readable format
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatus('Ready to share files!', false);
+            
+            // Add demo received files for testing
+            setTimeout(() => {
+                if (document.getElementById('receivedFiles').children.length === 0) {
+                    addReceivedFile({
+                        name: 'demo-photo.jpg',
+                        size: 2457612,
+                        data: '#'
+                    });
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
